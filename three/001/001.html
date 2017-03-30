@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>12</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<style>
+			body {
+				font-family: Monospace;
+				background-color: #f0f0f0;
+				margin: 0px;
+				overflow: hidden;
+			}
+		</style>
+	</head>
+	<body>
+
+		<script src="../build/three.js"></script>
+		<script src="../src/controls/OrbitControls.js"></script>
+		<script src="../src/controls/TransformControls.js"></script>
+		<script src="../src/controls/DragControls.js"></script>
+		<script src="../src/controls/TrackballControls.js"></script>
+		<script src="../src/loaders/FileLoader.js"></script>
+
+		<script src="../src/stats.min.js"></script>
+
+		<script>
+
+			var container, stats;
+			var camera, scene, renderer;
+			var light;
+
+			var clock = new THREE.Clock();
+			var lightArray;
+			var dayLight;
+			var mydata;
+
+
+// Loader ---------------------------------------------------------------------
+
+			var loader = new THREE.FileLoader();
+			loader.load(
+				'data/day.json', 
+				function(data) {
+					mydata = JSON.parse(data)
+					console.log(mydata[6]['hour'])
+					// console.log(mydata[0]['hour']['09'])
+					// for (var data of mydata) {
+					// 	console.log(data.hour[13])
+					// }
+				},
+
+				function(xhr) {
+					console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );
+				},
+
+				function(xhr) {
+					console.error('error!');
+				}
+			);
+
+// Map time ---------------------------------------------------------------------
+		
+		var rotatingRadius = 60;
+
+		var _01 = new THREE.Vector2(Math.cos( Math.PI/180 * 195) * rotatingRadius, 
+									Math.sin( Math.PI/180 * 195) * rotatingRadius);
+		var _02 = new THREE.Vector2(Math.cos( Math.PI/180 * 210) * rotatingRadius, 
+									Math.sin( Math.PI/180 * 210) * rotatingRadius);
+		var _03 = new THREE.Vector2(Math.cos( Math.PI/180 * 225) * rotatingRadius, 
+									Math.sin( Math.PI/180 * 225) * rotatingRadius);
+		var _04 = new THREE.Vector2(Math.cos( Math.PI/180 * 240) * rotatingRadius, 
+									Math.sin( Math.PI/180 * 240) * rotatingRadius);
+		var _05 = new THREE.Vector2(Math.cos( Math.PI/180 * 255) * rotatingRadius, 
+									Math.sin( Math.PI/180 * 255) * rotatingRadius);
+		var _06 = new THREE.Vector2(Math.cos( Math.PI/180 * 270) * rotatingRadius, 
+									Math.sin( Math.PI/180 * 270) * rotatingRadius);
+		var _07 = new THREE.Vector2(Math.cos( Math.PI/180 * 285) * rotatingRadius, 
+									Math.sin( Math.PI/180 * 285) * rotatingRadius);
+		var _08 = new THREE.Vector2(Math.cos( Math.PI/180 * 300) * rotatingRadius, 
+									Math.sin( Math.PI/180 * 300) * rotatingRadius);
+		var _09 = new THREE.Vector2(Math.cos( Math.PI/180 * 315) * rotatingRadius, 
+									Math.sin( Math.PI/180 * 315) * rotatingRadius);
+		var _10 = new THREE.Vector2(Math.cos( Math.PI/180 * 330) * rotatingRadius, 
+									Math.sin( Math.PI/180 * 330) * rotatingRadius);
+ 		var _11 = new THREE.Vector2(Math.cos( Math.PI/180 * 345) * rotatingRadius, 
+									Math.sin( Math.PI/180 * 345) * rotatingRadius);
+		var _12 = new THREE.Vector2(Math.cos( Math.PI/180 * 0) * rotatingRadius, 
+									Math.sin( Math.PI/180 * 0) * rotatingRadius);
+		var _13 = new THREE.Vector2(Math.cos( Math.PI/180 * 15) * rotatingRadius, 
+									Math.sin( Math.PI/180 * 15) * rotatingRadius);
+		var _14 = new THREE.Vector2(Math.cos( Math.PI/180 * 30) * rotatingRadius, 
+									Math.sin( Math.PI/180 * 30) * rotatingRadius);
+		var _15 = new THREE.Vector2(Math.cos( Math.PI/180 * 45) * rotatingRadius, 
+									Math.sin( Math.PI/180 * 45) * rotatingRadius);
+		var _16 = new THREE.Vector2(Math.cos( Math.PI/180 * 60) * rotatingRadius, 
+									Math.sin( Math.PI/180 * 60) * rotatingRadius);
+		var _17 = new THREE.Vector2(Math.cos( Math.PI/180 * 75) * rotatingRadius, 
+									Math.sin( Math.PI/180 * 75) * rotatingRadius);
+		var _18 = new THREE.Vector2(Math.cos( Math.PI/180 * 90) * rotatingRadius, 
+									Math.sin( Math.PI/180 * 90) * rotatingRadius);
+		var _19 = new THREE.Vector2(Math.cos( Math.PI/180 * 105) * rotatingRadius, 
+									Math.sin( Math.PI/180 * 105) * rotatingRadius);
+		var _20 = new THREE.Vector2(Math.cos( Math.PI/180 * 120) * rotatingRadius, 
+									Math.sin( Math.PI/180 * 120) * rotatingRadius);
+		var _21 = new THREE.Vector2(Math.cos( Math.PI/180 * 135) * rotatingRadius, 
+									Math.sin( Math.PI/180 * 135) * rotatingRadius);
+		var _22 = new THREE.Vector2(Math.cos( Math.PI/180 * 150) * rotatingRadius, 
+									Math.sin( Math.PI/180 * 150) * rotatingRadius);
+		var _23 = new THREE.Vector2(Math.cos( Math.PI/180 * 165) * rotatingRadius, 
+									Math.sin( Math.PI/180 * 165) * rotatingRadius);
+		var _00 = new THREE.Vector2(Math.cos( Math.PI/180 * 180) * rotatingRadius, 
+									Math.sin( Math.PI/180 * 180) * rotatingRadius);
+
+		var a_01 = Math.atan2(_01.y, _01.x);
+		var a_02 = Math.atan2(_02.y, _02.x);
+		var a_03 = Math.atan2(_03.y, _03.x);
+		var a_04 = Math.atan2(_04.y, _04.x);
+		var a_05 = Math.atan2(_05.y, _05.x);
+		var a_06 = Math.atan2(_06.y, _06.x);
+		var a_07 = Math.atan2(_07.y, _07.x);
+		var a_08 = Math.atan2(_08.y, _08.x);
+		var a_09 = Math.atan2(_09.y, _09.x);
+		var a_10 = Math.atan2(_10.y, _10.x);
+		var a_11 = Math.atan2(_11.y, _11.x);
+		var a_12 = Math.atan2(_12.y, _12.x);
+		var a_13 = Math.atan2(_13.y, _13.x);
+		var a_14 = Math.atan2(_14.y, _14.x);
+		var a_15 = Math.atan2(_15.y, _15.x);
+		var a_16 = Math.atan2(_16.y, _16.x);
+		var a_17 = Math.atan2(_17.y, _17.x);
+		var a_18 = Math.atan2(_18.y, _18.x);
+		var a_19 = Math.atan2(_19.y, _19.x);
+		var a_20 = Math.atan2(_20.y, _20.x);
+		var a_21 = Math.atan2(_21.y, _21.x);
+		var a_22 = Math.atan2(_22.y, _22.x);
+		var a_23 = Math.atan2(_23.y, _23.x);
+		var a_00 = Math.atan2(_00.y, _00.x);
+
+		// console.log(a_11, a_12);
+
+// End time ---------------------------------------------------------------------
+
+			init();
+			animate();
+
+			function init() {
+
+				container = document.createElement( 'div' );
+				document.body.appendChild( container );
+				scene = new THREE.Scene();
+				camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 1, 1000 );
+				camera.position.y = 80;
+				camera.position.z = Math.cos(Math.PI/180 * 45) * 300;
+				camera.position.x = Math.sin(Math.PI/180 * 45) * 300;
+				scene.add( camera );
+
+// Lights ---------------------------------------------------------------------
+
+				lightArray = new THREE.Object3D();
+
+				var lightSphere = new THREE.SphereGeometry(0.5,10,5);
+
+				dayLight = new THREE.PointLight( 0xffffff, 1.5, 100, 2);
+				dayLight.add( new THREE.Mesh( lightSphere, new THREE.MeshBasicMaterial({color: 0xffffff})));
+				dayLight.position.set(0,100,0);
+				scene.add(dayLight);
+
+				for(var i = 0; i < 20; i++) {
+					light = new THREE.PointLight( 0xffffff, 0.05, 100, 2);
+					light.add( new THREE.Mesh( lightSphere, new THREE.MeshBasicMaterial({color: 0xffffff})));
+					light.position.set(Math.random()*10, 50-i*5, 0);
+					lightArray.add(light);
+				}
+			
+				scene.add(lightArray);
+
+// End Lights ---------------------------------------------------------------------
+
+				var helper = new THREE.GridHelper( 1000, 100 );
+				helper.position.y = -30;
+				helper.material.opacity = 0.25;
+				helper.material.transparent = true;
+				helper.rotation.y = Math.PI/180 * 45;
+				scene.add( helper );
+
+				var axis = new THREE.AxisHelper(2000);
+				axis.position.set( 0, 0, 0 );
+				// scene.add( axis );
+
+				renderer = new THREE.WebGLRenderer( { antialias: true } );	
+				renderer.setClearColor( 0x000000 );
+				// renderer.setClearColor( 0xf0f0f0 );
+				renderer.setPixelRatio( window.devicePixelRatio );
+				renderer.setSize( window.innerWidth, window.innerHeight );
+				renderer.shadowMap.enabled = true;
+				container.appendChild( renderer.domElement );
+
+				// stats = new Stats();
+				// container.appendChild( stats.dom );
+
+				//controls
+				controls = new THREE.TrackballControls( camera );
+				controls.rotateSpeed = 1.0;
+				controls.zoomSpeed = 1.2;
+				controls.panSpeed = 0.8;
+				controls.noZoom = false;
+				controls.noPan = false;
+				controls.staticMoving = true;
+				controls.dynamicDampingFactor = 0.3;
+				controls.keys = [ 65, 83, 68 ];
+				controls.addEventListener( 'change', render );
+	
+// spheres ---------------------------------------------------------------------
+	
+				var geometry = new THREE.SphereGeometry(20,30,30);
+				var material = new THREE.MeshPhongMaterial({
+					color: 0xd8d8d8, 
+					specular: 0x111111,
+					shininess: 30
+				});
+				var sphere = new THREE.Mesh(geometry, material);
+				scene.add(sphere);
+
+				var myGeom = new THREE.SphereGeometry(20,30,30);
+				var mySphere = new THREE.Mesh(myGeom, material);
+				mySphere.position.set(0,100,0);
+				scene.add(mySphere);
+
+// End sphere ---------------------------------------------------------------------
+
+			}
+
+			function animate() {
+				requestAnimationFrame( animate );
+				render();
+				// stats.update();
+				controls.update();
+			}
+
+			function mapTime(start, end, energy, start_2, end_2, energy_2, start_3, end_3, energy_3, start_4, end_4, energy_4, start_5, end_5, energy_5) {
+				var angle = Math.atan2(lightArray.position.x, lightArray.position.z);
+
+				if (angle > start && angle < end) {
+					for(var i = 0; i < energy; i++) {
+						lightArray.children[i].intensity = 0.32;
+						lightArray.children[i].children[0].visible = true;
+					}
+				} else if (angle > start_2 && angle < end_2) {
+					for(var i = 0; i < energy_2; i++) {
+						lightArray.children[i].intensity = 0.32;
+						lightArray.children[i].children[0].visible = true;
+					}
+				} else if (angle > start_3 && angle < end_3) {
+					for(var i = 0; i < energy_3; i++) {
+						lightArray.children[i].intensity = 0.32;
+						lightArray.children[i].children[0].visible = true;
+					}
+				} else if (angle > start_4 && angle < end_4) {
+					for(var i = 0; i < energy_4; i++) {
+						lightArray.children[i].intensity = 0.32;
+						lightArray.children[i].children[0].visible = true;
+					}
+				} else if (angle > start_5 && angle < end_5) {
+					for(var i = 0; i < energy_5; i++) {
+						lightArray.children[i].intensity = 0.32;
+						lightArray.children[i].children[0].visible = true;
+					}
+				}
+				// } else if (angle > start_6 && angle < end_6) {
+				// 	for(var i = 0; i < energy_6; i++) {
+				// 		lightArray.children[i].intensity = 0.2;
+				// 		lightArray.children[i].children[0].visible = true;
+				// 	}
+				// } else if (angle > start_7 && angle < end_7) {
+				// 	for(var i = 0; i < energy_7; i++) {
+				// 		lightArray.children[i].intensity = 0.2;
+				// 		lightArray.children[i].children[0].visible = true;
+				// 	}
+				// } else if (angle > start_8 && angle < end_8) {
+				// 	for(var i = 0; i < energy_8; i++) {
+				// 		lightArray.children[i].intensity = 0.2;
+				// 		lightArray.children[i].children[0].visible = true;
+				// 	}
+				// } else if (angle > start_9 && angle < end_9) {
+				// 	for(var i = 0; i < energy_9; i++) {
+				// 		lightArray.children[i].intensity = 0.2;
+				// 		lightArray.children[i].children[0].visible = true;
+				// 	}
+				// } else if (angle > start_10 && angle < end_10) {
+				// 	for(var i = 0; i < energy_10; i++) {
+				// 		lightArray.children[i].intensity = 0.2;
+				// 		lightArray.children[i].children[0].visible = true;
+				// 	}
+				// } else if (angle > start_11 && angle < end_11) {
+				// 	for(var i = 0; i < energy_11; i++) {
+				// 		lightArray.children[i].intensity = 0.2;
+				// 		lightArray.children[i].children[0].visible = true;
+				// 	}
+				// } else if (angle > start_12 && angle < end_12) {
+				// 	for(var i = 0; i < energy_12; i++) {
+				// 		lightArray.children[i].intensity = 0.2;
+				// 		lightArray.children[i].children[0].visible = true;
+				// 	}
+				// }
+				// } else if (angle > start_13 && angle < end_13) {
+				// 	for(var i = 0; i < energy_13; i++) {
+				// 		lightArray.children[i].intensity = 0.6;
+				// 		lightArray.children[i].children[0].visible = true;
+				// 	}
+				// } else if (angle > start_14 && angle < end_14) {
+				// 	for(var i = 0; i < energy_14; i++) {
+				// 		lightArray.children[i].intensity = 0.6;
+				// 		lightArray.children[i].children[0].visible = true;
+				// 	}
+				// } else if (angle > start_15 && angle < end_15) {
+				// 	for(var i = 0; i < energy_15; i++) {
+				// 		lightArray.children[i].intensity = 0.6;
+				// 		lightArray.children[i].children[0].visible = true;
+				// 	}
+				// } else if (angle > start_16 && angle < end_16) {
+				// 	for(var i = 0; i < energy_16; i++) {
+				// 		lightArray.children[i].intensity = 0.6;
+				// 		lightArray.children[i].children[0].visible = true;
+				// 	}
+				// } else if (angle > start_17 && angle < end_17) {
+				// 	for(var i = 0; i < energy_17; i++) {
+				// 		lightArray.children[i].intensity = 0.6;
+				// 		lightArray.children[i].children[0].visible = true;
+				// 	}
+				// }
+
+				else {
+					for(var i = 0; i < lightArray.children.length; i++) {
+						lightArray.children[i].intensity = 0.01;
+						lightArray.children[i].children[0].visible = false;
+					}
+				}
+			}
+
+			function render() {
+
+				var time = Date.now() * 0.05;
+				var camTime = Date.now() * 0.005;
+				
+				dayLight.position.z = Math.cos( Math.PI/180 *time) * rotatingRadius;
+				dayLight.position.x = Math.sin( Math.PI/180 *time) * rotatingRadius;
+			
+				lightArray.position.z = Math.cos( Math.PI/180 *time) * rotatingRadius;
+				lightArray.position.x = Math.sin( Math.PI/180 *time) * rotatingRadius;
+
+
+				//day 1
+				// mapTime(a_02, a_03, mydata[0]['hour'][02], 
+				// 		a_04, a_05, mydata[0]['hour'][04],
+				// 		a_05, a_05, mydata[0]['hour'][05],
+				// 		a_06, a_07, mydata[0]['hour'][06],
+				// 		a_09, a_10, mydata[0]['hour'][09],
+				// 		a_10, a_11, mydata[0]['hour'][10],
+				// 		a_11, a_12, mydata[0]['hour'][11],
+				// 		a_12, a_13, mydata[0]['hour'][12],
+				// 		a_13, a_14, mydata[0]['hour'][13],
+				// 		a_15, a_16, mydata[0]['hour'][15],
+				// 		a_16, a_17, 20,
+				// 		a_18, a_19, mydata[0]['hour'][18],
+				// 		a_21, a_22, mydata[0]['hour'][21],
+				// 		a_23, a_00, mydata[0]['hour'][23]);
+
+				//day 2
+				// mapTime(a_00, a_01, mydata[1]['hour'][00], 
+				// 		a_01, a_02, 20,
+				// 		a_02, a_03, mydata[1]['hour'][02],
+				// 		a_04, a_05, mydata[1]['hour'][04],
+				// 		a_05, a_06, mydata[1]['hour'][05],
+				// 		a_06, a_07, mydata[1]['hour'][06],
+				// 		a_10, a_11, 20,
+				// 		a_11, a_12, mydata[1]['hour'][11],
+				// 		a_12, a_13, mydata[1]['hour'][12],
+				// 		a_13, a_14, mydata[1]['hour'][13],
+				// 		a_16, a_17, mydata[1]['hour'][16],
+				// 		a_17, a_18, 20,
+				// 		a_18, a_19, 20,
+				// 		a_19, a_20, mydata[1]['hour'][19],
+				// 		a_20, a_21, mydata[1]['hour'][20],
+				// 		a_22, a_23, mydata[1]['hour'][22],
+				// 		a_23, a_00, mydata[1]['hour'][23]);
+
+
+				//day 3
+				// mapTime(a_00, a_01, 20, 
+				// 		a_01, a_02, 20,
+				// 		a_02, a_03, 20,
+				// 		a_03, a_04, 10,
+				// 		a_04, a_05, 10,
+				// 		a_05, a_06, 10,
+				// 		a_06, a_07, 1,
+				// 		a_09, a_10, 7,
+				// 		a_10, a_11, 1,
+				// 		a_11, a_12, 20,
+				// 		a_12, a_13, 20,
+				// 		a_13, a_14, 15,
+				// 		a_14, a_15, 20,
+				// 		a_15, a_16, 1,
+				// 		a_16, a_17, 20,
+				// 		a_17, a_18, 10,
+				// 		a_18, a_19, 5);
+				//day 4
+				// mapTime(a_00, a_01, 20, 
+				// 		a_01, a_02, mydata[3]['hour'][01],
+				// 		a_04, a_05, mydata[3]['hour'][04],
+				// 		a_05, a_06, mydata[3]['hour'][05],
+				// 		a_06, a_07, mydata[3]['hour'][06],
+				// 		a_07, a_08, mydata[3]['hour'][07],
+				// 		a_08, a_09, mydata[3]['hour'][08],
+				// 		a_09, a_10, mydata[3]['hour'][09],
+				// 		a_10, a_11, mydata[3]['hour'][10],
+				// 		a_11, a_12, mydata[3]['hour'][11],
+				// 		a_12, a_13, 20,
+				// 		a_13, a_14, 20,
+				// 		a_15, a_16, mydata[3]['hour'][15],
+				// 		a_16, a_17, mydata[3]['hour'][16],
+				// 		a_17, a_18, mydata[3]['hour'][17],
+				// 		a_19, a_20, mydata[3]['hour'][19],
+				// 		a_22, a_23, mydata[3]['hour'][22]);
+
+				// //day 5
+				// mapTime(a_00, a_01, mydata[4]['hour'][00], 
+				// 		a_01, a_02, mydata[4]['hour'][01],
+				// 		a_02, a_03, 20,
+				// 		a_03, a_04, 20,
+				// 		a_09, a_10, mydata[4]['hour'][09],
+				// 		a_11, a_12, mydata[4]['hour'][11],
+				// 		a_12, a_13, 20,
+				// 		a_13, a_14, 20,
+				// 		a_14, a_15, mydata[4]['hour'][14],
+				// 		a_15, a_16, 20,
+				// 		a_16, a_17, 20,
+				// 		a_17, a_18, mydata[4]['hour'][17],
+				// 		a_18, a_19, 20,
+				// 		a_19, a_20, 20,
+				// 		a_20, a_21, 20,
+				// 		a_21, a_22, 20,
+				// 		a_22, a_23, 20,
+				// 		a_23, a_00, mydata[4]['hour'][23]);
+				
+				//day 6
+				// mapTime(a_00, a_01, 20, 
+				// 		a_01, a_02, 20,
+				// 		a_12, a_13, mydata[5]['hour'][12],
+				// 		a_13, a_14, 20,
+				// 		a_14, a_15, 20,
+				// 		a_15, a_16, 20,
+				// 		a_16, a_17, mydata[5]['hour'][16],
+				// 		a_17, a_18, mydata[5]['hour'][17],
+				// 		a_18, a_19, 20,
+				// 		a_19, a_20, 20,
+				// 		a_20, a_21, 20,
+				// 		a_21, a_22, mydata[5]['hour'][21]);
+
+				//day 7
+				mapTime(a_13, a_14, 10,
+						a_14, a_15, 15,
+						a_15, a_16, mydata[6]['hour'][15],
+						a_16, a_17, 20,
+						a_17, a_18, 20);
+
+
+				renderer.render( scene, camera );
+
+			}
+
+		</script>
+
+	</body>
+</html>
