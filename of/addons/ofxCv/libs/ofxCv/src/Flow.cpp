@@ -152,9 +152,9 @@ namespace ofxCv {
 		calcFeaturesNextFrame=true;
 	}
 	
-	void FlowPyrLK::setFeaturesToTrack(const vector<glm::vec2> & features){
+	void FlowPyrLK::setFeaturesToTrack(const vector<ofVec2f> & features){
 		nextPts.resize(features.size());
-		for(std::size_t i=0;i<features.size();i++){
+		for(int i=0;i<(int)features.size();i++){
 			nextPts[i]=toCv(features[i]);
 		}
 		calcFeaturesNextFrame = false;
@@ -165,24 +165,24 @@ namespace ofxCv {
 		calcFeaturesNextFrame = false;
 	}
 	
-    vector<glm::vec3> FlowPyrLK::getFeatures(){
-		ofPolyline poly = toOf(prevPts);
+	vector<ofPoint> FlowPyrLK::getFeatures(){
+		ofPolyline poly =toOf(prevPts);
 		return poly.getVertices();
 	}
 	
-	vector<glm::vec2> FlowPyrLK::getCurrent(){
-		vector<glm::vec2> ret;
-        for(std::size_t i = 0; i < nextPts.size(); i++) {
+	vector<ofPoint> FlowPyrLK::getCurrent(){
+		vector<ofPoint> ret;
+		for(int i = 0; i < (int)nextPts.size(); i++) {
 			if(status[i]){
-                ret.push_back(toOf(nextPts[i]));
+				ret.push_back(toOf(nextPts[i]));
 			}
 		}
 		return ret;
 	}
-    
-	vector<glm::vec2> FlowPyrLK::getMotion(){
-		vector<glm::vec2> ret(prevPts.size());
-		for(std::size_t i = 0; i < prevPts.size(); i++) {
+	
+	vector<ofVec2f> FlowPyrLK::getMotion(){
+		vector<ofVec2f> ret;
+		for(int i = 0; i < (int)prevPts.size(); i++) {
 			if(status[i]){
 				ret.push_back(toOf(nextPts[i])-toOf(prevPts[i]));
 			}
@@ -191,9 +191,9 @@ namespace ofxCv {
 	}
 	
 	void FlowPyrLK::drawFlow(ofRectangle rect) {
-		glm::vec2 offset(rect.x,rect.y);
-		glm::vec2 scale(rect.width/getWidth(),rect.height/getHeight());
-		for(std::size_t i = 0; i < prevPts.size(); i++) {
+		ofVec2f offset(rect.x,rect.y);
+		ofVec2f scale(rect.width/getWidth(),rect.height/getHeight());
+		for(int i = 0; i < (int)prevPts.size(); i++) {
 			if(status[i]){
 				ofDrawLine(toOf(prevPts[i])*scale+offset, toOf(nextPts[i])*scale+offset);
 			}
@@ -277,59 +277,50 @@ namespace ofxCv {
         }
         return flow;
     }
-	glm::vec2 FlowFarneback::getFlowOffset(int x, int y){
+	ofVec2f FlowFarneback::getFlowOffset(int x, int y){
 		if(!hasFlow){
-			return glm::vec2(0, 0);
+			return ofVec2f(0, 0);
 		}
 		const Vec2f& vec = flow.at<Vec2f>(y, x);
-		return glm::vec2(vec[0], vec[1]);
+		return ofVec2f(vec[0], vec[1]);
 	}
-	glm::vec2 FlowFarneback::getFlowPosition(int x, int y){
+	ofVec2f FlowFarneback::getFlowPosition(int x, int y){
 		if(!hasFlow){
-			return glm::vec2(0, 0);
+			return ofVec2f(0, 0);
 		}
 		const Vec2f& vec = flow.at<Vec2f>(y, x);
-		return glm::vec2(x + vec[0], y + vec[1]);
+		return ofVec2f(x + vec[0], y + vec[1]);
 	}
-	glm::vec2 FlowFarneback::getTotalFlow(){
+	ofVec2f FlowFarneback::getTotalFlow(){
 		return getTotalFlowInRegion(ofRectangle(0,0,flow.cols, flow.rows));
 	}
-	glm::vec2 FlowFarneback::getAverageFlow(){
+	ofVec2f FlowFarneback::getAverageFlow(){
 		return getAverageFlowInRegion(ofRectangle(0,0,flow.cols,flow.rows));
 	}
 	
-	glm::vec2 FlowFarneback::getAverageFlowInRegion(ofRectangle rect){
-        float area = rect.getArea();
-
-        if (area > 0)
-        {
-            return getTotalFlowInRegion(rect) / area;
-        }
-        else
-        {
-            return glm::vec2(0, 0);
-        }
+	ofVec2f FlowFarneback::getAverageFlowInRegion(ofRectangle rect){
+		return getTotalFlowInRegion(rect)/(rect.width*rect.height);
 	}
 	
-	glm::vec2 FlowFarneback::getTotalFlowInRegion(ofRectangle region){
+	ofVec2f FlowFarneback::getTotalFlowInRegion(ofRectangle region){
 		if(!hasFlow){
-			return glm::vec2(0, 0);
+			return ofVec2f(0, 0);
 		}
 		
 		const Scalar& sc = sum(flow(toCv(region)));
-		return glm::vec2(sc[0], sc[1]);
+		return ofVec2f(sc[0], sc[1]);
 	}
 	
 	void FlowFarneback::drawFlow(ofRectangle rect){
 		if(!hasFlow){
 			return;
 		}
-		glm::vec2 offset(rect.x,rect.y);
-		glm::vec2 scale(rect.width/flow.cols, rect.height/flow.rows);
+		ofVec2f offset(rect.x,rect.y);
+		ofVec2f scale(rect.width/flow.cols, rect.height/flow.rows);
 		int stepSize = 4; //TODO: make class-level parameteric
 		for(int y = 0; y < flow.rows; y += stepSize) {
 			for(int x = 0; x < flow.cols; x += stepSize) {
-				glm::vec2 cur = glm::vec2(x, y) * scale + offset;
+				ofVec2f cur = ofVec2f(x, y) * scale + offset;
 				ofDrawLine(cur, getFlowPosition(x, y) * scale + offset);
 			}
 		}

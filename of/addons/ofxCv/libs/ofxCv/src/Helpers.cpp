@@ -21,13 +21,13 @@ namespace ofxCv {
 											 tm[0], tm[1], tm[2], 1.0f);
 	}
 	
-	void drawMat(const Mat& mat, float x, float y) {
+	void drawMat(Mat& mat, float x, float y) {
 		drawMat(mat, x, y, mat.cols, mat.rows);
 	}
 	
     // special case for copying into ofTexture
     template <class S>
-    void copy(const S& src, ofTexture& tex) {
+    void copy(S& src, ofTexture& tex) {
         imitate(tex, src);
         int w = tex.getWidth(), h = tex.getHeight();
         int glType = tex.getTextureData().glInternalFormat;
@@ -35,7 +35,7 @@ namespace ofxCv {
 		tex.loadData(mat.ptr(), w, h, glType);
     }
     
-	void drawMat(const Mat& mat, float x, float y, float width, float height) {
+	void drawMat(Mat& mat, float x, float y, float width, float height) {
         if(mat.empty()) {
             return;
         }
@@ -72,13 +72,13 @@ namespace ofxCv {
 	
 	float weightedAverageAngle(const vector<Vec4i>& lines) {
 		float angleSum = 0;
-		glm::vec2 start, end;
+		ofVec2f start, end;
 		float weights = 0;
 		for(int i = 0; i < lines.size(); i++) {
-            start = glm::vec2(lines[i][0], lines[i][1]);
-			end = glm::vec2(lines[i][2], lines[i][3]);
-			glm::vec2 diff = end - start;
-            float length = glm::length(diff);
+			start.set(lines[i][0], lines[i][1]);
+			end.set(lines[i][2], lines[i][3]);
+			ofVec2f diff = end - start;
+			float length = diff.length();
 			float weight = length * length;
 			float angle = atan2f(diff.y, diff.x);
 			angleSum += angle * weight;

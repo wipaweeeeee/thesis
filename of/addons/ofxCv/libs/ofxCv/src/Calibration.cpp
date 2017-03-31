@@ -3,7 +3,6 @@
 #include "ofFileUtils.h"
 #include "ofGraphics.h"
 #include "ofMesh.h"
-#include "ofXml.h"
 
 namespace ofxCv {
     
@@ -92,7 +91,7 @@ namespace ofxCv {
         ofLoadIdentityMatrix();
         
         ofMatrix4x4 lookAt;
-        lookAt.makeLookAtViewMatrix(glm::vec3(0,0,0), glm::vec3(0,0,1), glm::vec3(0,-1,0));
+        lookAt.makeLookAtViewMatrix(ofVec3f(0,0,0), ofVec3f(0,0,1), ofVec3f(0,-1,0));
         ofMultMatrix(lookAt);
     }
     
@@ -124,7 +123,7 @@ namespace ofxCv {
         fs << "distCoeffs" << distCoeffs;
         fs << "reprojectionError" << reprojectionError;
         fs << "features" << "[";
-        for(std::size_t i = 0; i < imagePoints.size(); i++) {
+        for(int i = 0; i < (int)imagePoints.size(); i++) {
             fs << "[:" << imagePoints[i] << "]";
         }
         fs << "]";
@@ -154,22 +153,6 @@ namespace ofxCv {
         updateUndistortion();
         ready = true;
     }
-    
-    void Calibration::loadLcp(string filename, float focalLength, bool absolute){
-        imagePoints.clear();
-        
-        // Load the XML
-        ofXml xml;
-        bool loaded = xml.load(ofToDataPath(filename, absolute));
-        if(!loaded){
-            ofLogError()<<"No camera profile file found at "<<filename;
-            return;
-        }
-        
-        ofLogError("https://github.com/kylemcdonald/ofxCv/issues/207");
-    }
-    
-    
     void Calibration::setIntrinsics(Intrinsics& distortedIntrinsics){
         this->distortedIntrinsics = distortedIntrinsics;
         this->addedImageSize = distortedIntrinsics.getImageSize();
@@ -311,7 +294,7 @@ namespace ofxCv {
         ofDirectory dirList;
         ofImage cur;
         dirList.listDir(directory);
-        for(std::size_t i = 0; i < dirList.size(); i++) {
+        for(int i = 0; i < (int)dirList.size(); i++) {
             cur.load(dirList.getPath(i));
             if(!add(toCv(cur))) {
                 ofLog(OF_LOG_ERROR, "Calibration::add() failed on " + dirList.getPath(i));
@@ -327,15 +310,15 @@ namespace ofxCv {
         remap(src, dst, undistortMapX, undistortMapY, interpolationMode);
     }
     
-    glm::vec2 Calibration::undistort(glm::vec2& src) const {
-        glm::vec2 dst;
+    ofVec2f Calibration::undistort(ofVec2f& src) const {
+        ofVec2f dst;
         Mat matSrc = Mat(1, 1, CV_32FC2, &src.x);
         Mat matDst = Mat(1, 1, CV_32FC2, &dst.x);;
         undistortPoints(matSrc, matDst, distortedIntrinsics.getCameraMatrix(), distCoeffs);
         return dst;
     }
     
-    void Calibration::undistort(vector<glm::vec2>& src, vector<glm::vec2>& dst) const {
+    void Calibration::undistort(vector<ofVec2f>& src, vector<ofVec2f>& dst) const {
         int n = src.size();
         dst.resize(n);
         Mat matSrc = Mat(n, 1, CV_32FC2, &src[0].x);
@@ -406,11 +389,11 @@ namespace ofxCv {
     // this won't work until undistort() is in pixel coordinates
     /*
      void Calibration::drawUndistortion() const {
-     vector<glm::vec2> src, dst;
+     vector<ofVec2f> src, dst;
      cv::Point2i divisions(32, 24);
      for(int y = 0; y < divisions.y; y++) {
      for(int x = 0; x < divisions.x; x++) {
-     src.push_back(glm::vec2(
+     src.push_back(ofVec2f(
 					ofMap(x, -1, divisions.x, 0, addedImageSize.width),
 					ofMap(y, -1, divisions.y, 0, addedImageSize.height)));
      }
@@ -451,7 +434,7 @@ namespace ofxCv {
         ofMesh mesh;
         mesh.setMode(OF_PRIMITIVE_LINE_STRIP);
         for(int j = 0; j < (int)objectPoints[i].size(); j++) {
-            glm::vec3 cur = toOf(objectPoints[i][j]);
+            ofVec3f cur = toOf(objectPoints[i][j]);
             mesh.addVertex(cur);
         }
         mesh.draw();
@@ -471,7 +454,7 @@ namespace ofxCv {
         perViewErrors.clear();
         perViewErrors.resize(objectPoints.size());
         
-        for(std::size_t i = 0; i < objectPoints.size(); i++) {
+        for(int i = 0; i < (int)objectPoints.size(); i++) {
             projectPoints(Mat(objectPoints[i]), boardRotations[i], boardTranslations[i], distortedIntrinsics.getCameraMatrix(), distCoeffs, imagePoints2);
             double err = norm(Mat(imagePoints[i]), Mat(imagePoints2), CV_L2);
             int n = objectPoints[i].size();

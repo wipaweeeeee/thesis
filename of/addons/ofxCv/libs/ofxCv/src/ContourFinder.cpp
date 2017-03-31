@@ -87,19 +87,18 @@ namespace ofxCv {
                     curArea = -curArea;
                     hole = false;
                 }
-
+                allHoles.push_back(hole);
+				allAreas.push_back(curArea);
 				if((!needMinFilter || curArea >= imgMinArea) &&
 					 (!needMaxFilter || curArea <= imgMaxArea)) {
 					allIndices.push_back(i);
-                    allHoles.push_back(hole);
-                    allAreas.push_back(curArea);
 				}
 			}
 		} else {
 			for(size_t i = 0; i < allContours.size(); i++) {
-                double curArea = contourArea(Mat(allContours[i]), true);
-                allAreas.push_back(abs(curArea));
-                allHoles.push_back(curArea > 0);
+				if (sortBySize) {
+					allAreas.push_back(contourArea(allContours[i]));
+				}
 				allIndices.push_back(i);
 			}
 		}
@@ -305,7 +304,7 @@ namespace ofxCv {
 	void ContourFinder::draw() const {
 		ofPushStyle();
 		ofNoFill();
-        for(std::size_t i = 0; i < polylines.size(); i++) {
+		for(int i = 0; i < (int)polylines.size(); i++) {
 			polylines[i].draw();
 			ofDrawRectangle(toOf(getBoundingRect(i)));
 		}
