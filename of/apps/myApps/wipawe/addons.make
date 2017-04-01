@@ -1,3 +1,4 @@
 ofxAruco
 ofxCv
+ofxGui
 ofxOpenCv

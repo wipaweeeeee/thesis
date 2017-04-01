@@ -2,14 +2,16 @@
 #include "ofxCv.h"
 #include "ofBitmapFont.h"
 
+
 void drawMarker(float size, const ofColor & color){
     ofDrawAxis(size);
     ofPushMatrix();
     // move up from the center by size*.5
     // to draw a box centered at that point
     ofTranslate(0,size*0.5,0);
+    ofRotateX(45.0);
     ofFill();
-    ofSetColor(color,50);
+    ofSetColor(ofColor::red,50);
     ofDrawBox(size);
     ofNoFill();
     ofSetColor(color);
@@ -57,8 +59,10 @@ void testApp::update(){
 //--------------------------------------------------------------
 void testApp::draw(){
     ofSetColor(255);
-    video->draw(0,0);
     
+    
+    
+    video->draw(0,0);
     //aruco.draw();
     
     if(showMarkers){
@@ -66,6 +70,8 @@ void testApp::draw(){
             aruco.begin(i);
             drawMarker(0.15,ofColor::white);
             aruco.end();
+            ofDrawBitmapString("markers ID " + ofToString(aruco.getMarkers()[i].idMarker),500,20);
+            
         }
     }
     
@@ -123,7 +129,7 @@ void testApp::mouseDragged(int x, int y, int button){
 
 //--------------------------------------------------------------
 void testApp::mousePressed(int x, int y, int button){
-    
+    ofLog() << "The position of the mouse is at " << x << " and y is at " << y << endl;
 }
 
 //--------------------------------------------------------------
@@ -133,7 +139,7 @@ void testApp::mouseReleased(int x, int y, int button){
 
 //--------------------------------------------------------------
 void testApp::windowResized(int w, int h){
-    
+    grabber.initGrabber(w,h);
 }
 
 //--------------------------------------------------------------

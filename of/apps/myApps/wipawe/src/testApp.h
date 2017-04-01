@@ -3,6 +3,7 @@
 #include "ofMain.h"
 #include "ofxAruco.h"
 
+
 class testApp : public ofBaseApp{
     
 public:
@@ -32,4 +33,5 @@ public:
     bool showBoardImage;
     ofImage board;
     ofImage marker;
+
 };
