@@ -5,3 +5,6 @@
 projectGenerator.app
 
 openFrameworksCompiled/
+
+config.py
+*.pyc
