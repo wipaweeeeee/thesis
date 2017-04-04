@@ -106,9 +106,9 @@ void ofApp::setup(){
     
     //AR stuff
     string boardName = "boardConfiguration.yml";
-    
+    grabber.listDevices();
     grabber.setDeviceID(1);
-    grabber.initGrabber(640,480);
+    grabber.initGrabber(1280,720);
     video = &grabber;
     
     //aruco.setThreaded(false);
