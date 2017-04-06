@@ -8,3 +8,5 @@ openFrameworksCompiled/
 
 config.py
 *.pyc
+
+env/
